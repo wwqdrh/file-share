@@ -6,6 +6,9 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"os"
+
+	"github.com/mdp/qrterminal/v3"
 
 	"github.com/wwqdrh/file-share/api"
 	"github.com/wwqdrh/file-share/utils"
@@ -48,7 +51,9 @@ func main() {
 		Addr:    fmt.Sprintf("0.0.0.0:%d", *port), // 监听所有网络接口
 		Handler: handler,
 	}
-	fmt.Printf("servers is start on %s:%d\n", utils.GetIPAddress(0, "ipv4"), *port)
+	url := fmt.Sprintf("http://%s:%d", utils.GetWlan0IPAddress("ipv4"), *port)
+	fmt.Printf("servers is start on %s\n", url)
+	qrterminal.Generate(url, qrterminal.L, os.Stdout)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		fmt.Printf("Server error: %v\n", err)
 	}

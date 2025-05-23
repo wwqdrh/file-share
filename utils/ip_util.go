@@ -2,6 +2,7 @@ package utils
 
 import (
 	"net"
+	"runtime"
 	"strings"
 )
 
@@ -121,6 +122,27 @@ func GetIPAddress(idx int, ipFamily string) string {
 
 	idx = idx % len(names)
 	ipAddresses := GetIPAddresses(names[idx], ipFamily)
+	if len(ipAddresses) > 0 {
+		return ipAddresses[0]
+	}
+	return GetLoopback(ipFamily)
+}
+
+// GetWlan0IPAddress returns the IP address of wlan0 interface for the specified family
+func GetWlan0IPAddress(ipFamily string) string {
+	wlanInterface := "wlan0"
+	// 判断操作系统
+	switch runtime.GOOS {
+	case "android", "linux":
+		wlanInterface = "wlan0"
+	case "darwin": // macOS
+		wlanInterface = "en0" // 通常是 Wi-Fi 接口
+	case "windows":
+		wlanInterface = "Wi-Fi" // Windows 的 Wi-Fi 接口名称
+	default:
+		wlanInterface = "wlan0" // 默认尝试
+	}
+	ipAddresses := GetIPAddresses(wlanInterface, ipFamily)
 	if len(ipAddresses) > 0 {
 		return ipAddresses[0]
 	}
